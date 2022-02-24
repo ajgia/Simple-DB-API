@@ -12,7 +12,7 @@ const headers =
 // Create db connection
 const con = mysql.createConnection(
 {
-    host: '137.184.80.213',
+    host: 'localhost',
     user: 'lab5',
     password: 'lab5123',
     database: 'lab5'
