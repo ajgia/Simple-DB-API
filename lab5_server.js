@@ -24,19 +24,34 @@ const server = http.createServer(function(req, res)
     const q = url.parse(req.url, true);
     const pathname = q.pathname.toLowerCase();
 
+
     res.writeHead(200, headers);
-    res.end("server lab 5 response");
+
+    if(con.state === 'disconnected'){
+        return respond(null, { status: 'fail', message: 'server down'});
+      }
 
     // connect to db
     con.connect(function(err)
     {
+        res.write(err);
         if (err) 
         {
             throw err;
         }
+        let sql = 'select * from lab5.score;'
+        con.query(sql, function (err, result) {
+            res.write(err);
+            if (err) throw err;
+            
+            if (result) res.write(result);
+            console.log(result);
+        });
 
-        console.log("Connected");
     });
+
+    res.write('what up');
+    res.end('connect done');
 
 }
 ).listen(8083, "localhost");
