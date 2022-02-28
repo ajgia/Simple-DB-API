@@ -7,6 +7,10 @@ const headers =
     'Content-Type': 'text/html; charset=utf-8',
     'Access-Control-Allow-Origin': '*'
 };
+const content_type = 'content-type';
+const typeJSON = 'json';
+const typeHTML = 'html';
+
 const port = 8083;
 const serverRunningMsg = `server running at port ${port}`;
 const sqlConnectionMessage = 'mysql connected';
@@ -48,6 +52,7 @@ app.get(endPointRoot, (req, res) =>
     {
         if (err)
             throw err;
+        res.type(typeJSON);
         res.send(JSON.stringify(result));
     });
 });
@@ -65,6 +70,7 @@ app.post(endPointRoot, (req, res) =>
         {
             if (err)
                 throw err;
+            res.type(typeHTML);
             res.send(`Added ${name} : ${score}`);
         });
     }
