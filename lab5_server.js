@@ -1,5 +1,7 @@
 const http = require('http');
 const url = require('url');
+
+const express = require("express");
 const mysql = require('mysql');
 
 const endPointRoot = '/comp4537/labs/5/';
@@ -8,50 +10,71 @@ const headers =
     'Content-Type': 'text/html; charset=utf-8',
     'Access-Control-Allow-Origin': '*'
 };
+const port = 8083;
+const serverRunningMsg = `server running at port ${port}`;
+const sqlConnectionMessage = 'mysql connected';
+
+const host = 'localhost';
+const user = 'lab5';
+const password = 'lab5123';
+const database = 'lab5';
+
+const sqlSelectAll = 'select * from score';
+const sqlInsertIntoScore = 'insert into score (name, score) values';
+
+const app = express()
+
+
 
 // Create db connection
 const con = mysql.createConnection(
 {
-    host: 'localhost',
-    user: 'lab5',
-    password: 'lab5123',
-    database: 'lab5'
+    host: host,
+    user: user,
+    password: password,
+    database: database
 });
 
-// Create server
-const server = http.createServer(function(req, res)
+// Connect
+con.connect((err) =>
 {
-    const q = url.parse(req.url, true);
-    const pathname = q.pathname.toLowerCase();
+    if (err)
+        throw err;
+    console.log(sqlConnectionMessage);
+});
 
-
-    res.writeHead(200, headers);
-
-    if(con.state === 'disconnected'){
-        return respond(null, { status: 'fail', message: 'server down'});
-      }
-
-    // connect to db
-    con.connect(function(err)
+// GET returns all records
+app.get(endPointRoot, (req, res) =>
+{
+    let sql = sqlSelectAll;
+    con.query(sql, (err, result) => 
     {
-        res.write(err);
-        if (err) 
-        {
+        if (err)
             throw err;
-        }
-        let sql = 'select * from lab5.score;'
-        con.query(sql, function (err, result) {
-            res.write(err);
-            if (err) throw err;
-            
-            if (result) res.write(result);
-            console.log(result);
-        });
-
+        res.send(JSON.stringify(result));
     });
+});
 
-    res.write('what up');
-    res.end('connect done');
+// POST adds one record to the db
+app.post(endPointRoot, (req, res) => 
+{
+    let name = req.query.name;
+    let score = req.query.score;
 
-}
-).listen(8083, "localhost");
+    if (name && score)
+    {
+        let sql = `${sqlInsertIntoScore} ('${name}', ${score})`;
+        con.query(sql, (err, result) =>
+        {
+            if (err)
+                throw err;
+            res.send(`Added ${name} : ${score}`);
+        });
+    }
+});
+
+
+app.listen(8083, () =>
+{
+    console.log(serverRunningMsg);
+});
