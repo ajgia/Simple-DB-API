@@ -7,6 +7,7 @@ const acao = 'Access-Control-Allow-Origin';
 const content_type = 'content-type';
 const typeJSON = 'json';
 const typeHTML = 'html';
+const success = 'success';
 
 const port = 8083;
 const serverRunningMsg = `server running at port ${port}`;
@@ -69,8 +70,9 @@ app.post(endPointRoot, (req, res) =>
             if (err)
                 throw err;
             res.set(acao, '*');
-            res.type(typeHTML);
-            res.send(`Added ${name} : ${score}`);
+            res.type(typeJSON);
+            let resObj = {status: success, name: name, score: score};
+            res.send(JSON.stringify(resObj));
         });
     }
 });
